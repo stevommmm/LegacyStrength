@@ -1,0 +1,5 @@
+name: LegacyStrength
+description: Recalculate player attack damage using old Strength bonuses in 1.5.2
+version: ${version}
+author: Byteflux
+main: net.minelink.legacystrength.LegacyStrength
