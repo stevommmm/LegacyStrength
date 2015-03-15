@@ -30,6 +30,9 @@ public final class LegacyStrength extends JavaPlugin implements Listener {
         Entity entity = event.getDamager();
         if (!(entity instanceof Player)) return;
 
+        // Do nothing if damaged entity is not a player
+        if (!(event.getEntity() instanceof Player)) return;
+
         // Do nothing if player doesn't have the Strength effect
         Player player = (Player) event.getDamager();
         if (!player.hasPotionEffect(PotionEffectType.INCREASE_DAMAGE)) return;
