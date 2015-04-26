@@ -84,6 +84,8 @@ public final class StrengthDamageHelper {
 
     private double criticalStrengthDamage = 0.0;
 
+    private double weaknessDamage = 0.0;
+
     private double finalDamage = 0.0;
 
     public static double convertDamage(Player player, double initialDamage) {
@@ -131,6 +133,14 @@ public final class StrengthDamageHelper {
         finalDamage += 3 << amplifier;
     }
 
+    private void setWeakness(int amplifier) {
+        // This is the vanilla damage reduction from Weakness
+        weaknessDamage = (amplifier + 1) * -0.5;
+
+        // Reduce final damage by appropriate Weakness amount
+        finalDamage += weaknessDamage;
+    }
+
     private void setPlayer(Player player) {
         // Apply weapon properties in damage calculations
         ItemStack weapon = player.getItemInHand();
@@ -138,30 +148,31 @@ public final class StrengthDamageHelper {
             setWeapon(weapon);
         }
 
-        // Apply strength effect in damage calculations
+        // Apply strength and weakness effects in damage calculations
         for (PotionEffect e : player.getActivePotionEffects()) {
             if (e.getType().equals(PotionEffectType.INCREASE_DAMAGE)) {
                 setStrength(e.getAmplifier());
-                break;
+            } else if (e.getType().equals(PotionEffectType.WEAKNESS)) {
+                setWeakness(e.getAmplifier());
             }
         }
     }
 
     private double getFinalDamage() {
         // Undo all the Vanilla math using base damage numbers
-        double calculatedBase = initialDamage - extraDamage - baseStrengthDamage - baseDamage;
+        double calculatedBase = initialDamage - extraDamage - baseStrengthDamage - weaknessDamage - baseDamage;
 
         // Undo all the Vanilla math using critical damage numbers
-        double calculatedCritical = initialDamage - extraDamage - criticalStrengthDamage - criticalDamage;
+        double calculatedCritical = initialDamage - extraDamage - criticalStrengthDamage - weaknessDamage - criticalDamage;
 
         // Return final damage using base damage numbers
-        if (calculatedBase > -0.1 && calculatedBase < 0.1) {
+        if (calculatedBase > -1.5 && calculatedBase < 1.5) {
             finalDamage += baseDamage;
             return finalDamage;
         }
 
         // Return final damage using critical damage numbers
-        if (calculatedCritical > -0.1 && calculatedCritical < 0.1) {
+        if (calculatedCritical > -1.5 && calculatedCritical < 1.5) {
             finalDamage += criticalDamage;
             return finalDamage;
         }
